@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Sudoku from '../lib/Sudoku';
+import clsx from 'clsx';
 
 const sudokuObj = Sudoku();
 
@@ -94,10 +95,27 @@ const SudokuGame = () => {
     return errorCells[0] === row && errorCells[1] === col;
   }
 
+  const borderStyle = (row, col) => {
+    let style = ''
+    if (row == 0 || row == 3 || row == 6) {
+      style += 'border-t-gray-600 '
+    }
+    if (row == 2 || row == 5 || row == 8) {
+      style += 'border-b-gray-600 '
+    }
+    if (col == 0 || col == 3 || col == 6) {
+      style += 'border-l-gray-600 '
+    }
+    if (col == 2 || col == 5 || col == 8) {
+      style += 'border-r-gray-600 '
+    }
+    return style
+  }
+
   return (
     <div>
       {/* 数独格子 */}
-      <div className="grid grid-cols-9 gap-1">
+      <div className="grid grid-cols-9 gap-0">
         {puzzle.map((row, rowIndex) =>
           row.map((cell, colIndex) => (
             <input
@@ -108,7 +126,11 @@ const SudokuGame = () => {
               value={userSolution[rowIndex][colIndex] ?? ''}
               onChange={(e) => handleCellChange(rowIndex, colIndex, parseInt(e.target.value) || null)}
               disabled={cell !== null}
-              className={`w-10 h-10 text-center border border-gray-300 rounded ${isErrorCell(rowIndex, colIndex) ? 'text-red-500' : ''}`}
+              className={clsx(
+                'w-12 h-12 text-center border border-gray-300 rounded',
+                isErrorCell(rowIndex, colIndex) ? 'text-red-500' : '',
+                borderStyle(rowIndex, colIndex)
+                )}
             />
           ))
         )}
@@ -129,9 +151,6 @@ const SudokuGame = () => {
         <button onClick={() => handleGeneratePuzzle('very-hard')} className="mr-2 px-4 py-2 bg-green-500 text-white rounded">
         very-hard
         </button>
-        {/* <button onClick={(e) => handleGeneratePuzzle(e, 'insane')} className="mx-2 px-4 py-2 bg-green-500 text-white rounded">
-        insane
-        </button> */}
         
       </div>
       <div className="mt-4">
