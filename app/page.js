@@ -1,5 +1,5 @@
 "use client"
-import Sudoku from './sudoku/mySudoku'
+import Sudoku from '../components/sudoku'
 
 export default function Home() {
   return (

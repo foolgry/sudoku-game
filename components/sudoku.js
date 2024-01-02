@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect } from 'react';
-import Sudoku from '../lib/Sudoku';
+import Sudoku from '../lib/sudoku_lib';
 import clsx from 'clsx';
 
 const sudokuObj = Sudoku();
