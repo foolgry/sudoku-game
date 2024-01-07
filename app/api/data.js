@@ -40,7 +40,7 @@ export async function getGame(gameId) {
         console.error('Error get games:', error);
         throw error;
     }
-} 
+}
 
 
 export async function createUserGame(userId, gameId) {
@@ -76,31 +76,8 @@ export async function getUserGame(userId, gameId) {
 
 export async function updateUserGame(id, { result, costTime, isOk }) {
     try {
-        let query = 'update userGames set ';
-        let params = [];
-
-        if (result !== undefined && result !== null) {
-            query += 'result=${result},';
-            params.push(result);
-        }
-
-        if (costTime !== undefined && costTime !== null) {
-            query += ' costTime=${costTime},';
-            params.push(costTime);
-        }
-
-        if (isOk !== undefined && isOk !== null) {
-            query += ' isOk=${isOk},';
-            params.push(isOk);
-        }
-
-        // Remove the last comma
-        query = query.slice(0, -1);
-
-        query += ' where id=${id}';
-        params.push(id);
-
-        const res = await sql(query, ...params);
+        console.log('updateUserGame', id, result, costTime, isOk)
+        await sql`update userGames set result=${result} where id=${id}`;
     } catch (error) {
         console.error('Error create games:', error);
         throw error;
@@ -117,11 +94,11 @@ export async function updateUserGame(id, { result, costTime, isOk }) {
         col smallint,
         step int
  */
-export async function createUserGameHistory(userGameId, row, col, step) {
+export async function createUserGameHistory(userGameId, row, col, val, step) {
     try {
         const result = await sql`
-      INSERT INTO userGameHistory (userGameId, row, col, step) 
-      VALUES (${userGameId}, ${row}, ${col}, ${step}) RETURNING id
+      INSERT INTO userGameHistory (userGameId, row, col, val, step) 
+      VALUES (${userGameId}, ${row}, ${col}, ${val}, ${step}) RETURNING id
       `;
         const insertedId = result.rows[0].id;
         console.log('createUserGameHistory record ID:', insertedId);

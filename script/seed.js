@@ -71,6 +71,7 @@ async function createUserGameHistory(client) {
         userGameId UUID,
         row smallint,
         col smallint,
+        val smallint,
         step int
       );
     `;

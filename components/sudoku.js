@@ -2,13 +2,12 @@
 
 import { useState, useEffect } from 'react';
 import clsx from 'clsx';
-import { createUserGames } from '@/app/api/game';
+import { createUserGames, updateUserSolution } from '@/app/api/game';
 import { getLocalData, saveLocalData } from '@/lib/utils';
 import { useRouter } from 'next/navigation';
 
 const SudokuGame = (params) => {
-  console.log('data', params.data)
-  let {initPuzzle, initUserSolution, initIsSolved} = params.data
+  
 
   const copyPuzzle = (puzzles) => {
     return puzzles.map((r) =>
@@ -21,17 +20,18 @@ const SudokuGame = (params) => {
   const [isSolved, setIsSolved] = useState(false);
   const [errorCells, setErrorCells] = useState([]);
   const [userId, setUserId] = useState(null);
+  const [userGameId, setUserGameId] = useState(null);
+  const [step, setStep] = useState(0);
   const {replace} = useRouter()
 
   useEffect(() => {
-    console.log('init', initPuzzle, initUserSolution, initIsSolved)
-    if (initPuzzle) {
-      setPuzzle(initPuzzle);
-      if (!initUserSolution) {
-        initUserSolution = copyPuzzle(initPuzzle);
-      }
-      setUserSolution(initUserSolution);
-      setIsSolved(initIsSolved);
+    console.log('data', params.data)
+    const { puzzle, userSolution, isSolved, userGameId } = params.data
+    if (puzzle) {
+      setPuzzle(puzzle);
+      setUserSolution(userSolution);
+      setIsSolved(isSolved);
+      setUserGameId(userGameId);
     }
 
     const {userId, gameId} = getLocalData()
@@ -41,6 +41,7 @@ const SudokuGame = (params) => {
   const handleGeneratePuzzle = async (level) => {
     const {puzzle,gameId,userGameId} = await createUserGames(userId, level)
     setPuzzle(puzzle);
+    setUserGameId(userGameId);
     setUserSolution(() => copyPuzzle(puzzle));
     setIsSolved(false);
     saveLocalData({ userId, gameId });
@@ -101,6 +102,15 @@ const SudokuGame = (params) => {
     setErrorCells([]);
   };
 
+  const handleBlur = (row, col, value) => {
+    // 更新用户解答
+    if (!value) {
+      return;
+    }
+    setStep(step + 1)
+    updateUserSolution(userGameId, userSolution, isSolved, row, col, value, step)
+  }
+
   const isErrorCell = (row, col) => {
     return errorCells[0] === row && errorCells[1] === col;
   }
@@ -135,6 +145,7 @@ const SudokuGame = (params) => {
               max="9"
               value={userSolution[rowIndex][colIndex] ?? ''}
               onChange={(e) => handleCellChange(rowIndex, colIndex, parseInt(e.target.value) || null)}
+              onBlur={(e) => handleBlur(rowIndex, colIndex, parseInt(e.target.value))}
               disabled={cell !== null}
               className={clsx(
                 'w-12 h-12 text-center border border-gray-300 rounded',

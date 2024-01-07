@@ -1,7 +1,7 @@
 'use server'
 
 import { sudokulib } from "@/lib/sudokulib"
-import {createGame, createUserGame, getGame, getUserGame } from "./data"
+import {createGame, createUserGame, createUserGameHistory, getGame, getUserGame, updateUserGame } from "./data"
 
 export async function createUserGames(userId, level) {
     const puzzleStr = sudokulib.generate(level)
@@ -29,4 +29,12 @@ export async function getUserGames(userId, gameId) {
         userGameId: userGame.id,
         gameId
     }
+}
+
+export async function updateUserSolution(userGameId, userSolution, isSolved, row, col, val, step) {
+    updateUserGame(userGameId, {
+        result: sudokulib.board_grid_to_string(userSolution),
+        isOk: isSolved
+    })
+    createUserGameHistory(userGameId, row, col, val, step)
 }

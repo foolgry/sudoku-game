@@ -42,7 +42,7 @@ export default function Page({ params }) {
             userSolution = copyPuzzle(puzzle);
         }
         saveTmpData({ puzzle, userSolution, isSolved, userGameId })
-        setSudokuData({ initPuzzle: puzzle, initUserSolution: userSolution, initIsSolved: isSolved })
+        setSudokuData({ puzzle, userSolution, isSolved, userGameId })
       }
   
       saveLocalData({ userId, gameId })
