@@ -46,7 +46,7 @@ async function createUserGames(client) {
         id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
         userId UUID,
         gameId UUID,
-        result VARCHAR(100),
+        userSolution VARCHAR(100),
         costTime integer,
         isOk BOOLEAN,
         createTime TIMESTAMP

@@ -74,10 +74,11 @@ export async function getUserGame(userId, gameId) {
 }
 
 
-export async function updateUserGame(id, { result, costTime, isOk }) {
+export async function updateUserGame(id, userSolution, costTime, isOk) {
     try {
-        console.log('updateUserGame', id, result, costTime, isOk)
-        await sql`update userGames set result=${result} where id=${id}`;
+        console.log('updateUserGame', id, userSolution, costTime, isOk)
+        const rs = await sql`update userGames set usersolution=${userSolution} where id=${id}`;
+        console.log(rs)
     } catch (error) {
         console.error('Error create games:', error);
         throw error;
