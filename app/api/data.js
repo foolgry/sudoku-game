@@ -1,5 +1,6 @@
-'use server'
+"use server"
 import { sql } from '@vercel/postgres';
+import { revalidateTag } from 'next/cache';
 
 export async function createUser() {
     try {
@@ -61,10 +62,10 @@ export async function createUserGame(userId, gameId) {
 
 
 export async function getUserGame(userId, gameId) {
+    revalidateTag()
+    console.log('getUserGame', userId, gameId)
     try {
-        const result = await sql`
-      SELECT * FROM userGames WHERE userId=${userId} and gameId=${gameId}
-      `;
+        const result = await sql`SELECT * FROM usergames WHERE userId=${userId} and  gameId=${gameId}`;
         return result.rows[0];
     } catch (error) {
         console.error('Error get user game:', error);
@@ -74,10 +75,11 @@ export async function getUserGame(userId, gameId) {
 }
 
 
-export async function updateUserGame(id, { result, costTime, isOk }) {
+export async function updateUserGame(id, userSolution, costTime, isOk) {
     try {
-        console.log('updateUserGame', id, result, costTime, isOk)
-        await sql`update userGames set result=${result} where id=${id}`;
+        console.log('updateUserGame', id, userSolution, costTime, isOk)
+        const rs = await sql`update userGames set usersolution=${userSolution} where id=${id}`;
+        console.log(rs)
     } catch (error) {
         console.error('Error create games:', error);
         throw error;

@@ -5,10 +5,10 @@ import clsx from 'clsx';
 import { createUserGames, updateUserSolution } from '@/app/api/game';
 import { getLocalData, saveLocalData } from '@/lib/utils';
 import { useRouter } from 'next/navigation';
+import { unstable_noStore as noStore } from 'next/cache';
 
 const SudokuGame = (params) => {
-  
-
+  noStore();
   const copyPuzzle = (puzzles) => {
     return puzzles.map((r) =>
       r.map((cell) => cell)

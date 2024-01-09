@@ -1,54 +1,43 @@
-
 'use client';
 import Sudoku from '@/components/sudoku'
-import { saveLocalData, getLocalData, saveTmpData, getTmpData } from '@/lib/utils';
+import { saveLocalData, getLocalData, saveTmpData } from '@/lib/utils';
 import { createUser } from "@/app/api/data"
 import { getUserGames } from "@/app/api/game"
-import { useState , useEffect} from 'react';
-import {copyPuzzle} from '@/lib/utils'
+import { useState, useEffect } from 'react';
+import { copyPuzzle } from '@/lib/utils'
+
+async function initializeGame(id) {
+  let userId, gameId;
+  const local = getLocalData();
+  if (local) {
+    userId = local.userId;
+    gameId = local.gameId;
+  }
+
+  if (!userId) {
+    userId = await createUser()
+  }
+
+  gameId = id || gameId
+  if (gameId) {
+    const data = await getUserGames(userId, gameId)
+    let { puzzle, userSolution, isSolved, userGameId } = data;
+    if (!userSolution || userSolution.length === 0) {
+      userSolution = copyPuzzle(puzzle);
+    }
+    saveTmpData({ puzzle, userSolution, isSolved, userGameId })
+    return { puzzle, userSolution, isSolved, userGameId };
+  }
+
+  saveLocalData({ userId, gameId })
+}
 
 export default function Page({ params }) {
   const id = params.id;
-
-  console.log('page id', id)
-
   const [sudokuData, setSudokuData] = useState(null);
 
   useEffect(() => {
-
-    const init = async () => {
-      // get user id from local storage
-      let userId, gameId;
-      const local = getLocalData();
-      console.log({local})
-      if (local) {
-        userId = local.userId;
-        gameId = local.gameId;
-      }
-  
-      if (!userId) {
-        // create user
-        userId = await createUser()
-        console.log('create user id', userId);
-      }
-  
-      gameId = id || gameId
-      if (gameId) {
-        console.log({ gameId })
-        const data = await getUserGames(userId, gameId)
-        console.log("get user game", data)
-        let { puzzle, userSolution, isSolved, userGameId } = data;
-        if (!userSolution || userSolution.length === 0) {
-            userSolution = copyPuzzle(puzzle);
-        }
-        saveTmpData({ puzzle, userSolution, isSolved, userGameId })
-        setSudokuData({ puzzle, userSolution, isSolved, userGameId })
-      }
-  
-      saveLocalData({ userId, gameId })
-    }
-
-    init()
+    initializeGame(id).then(data => setSudokuData(data));
   }, [])
 
   return (
