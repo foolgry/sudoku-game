@@ -22,7 +22,7 @@ const SudokuGame = (params) => {
   const [userId, setUserId] = useState(null);
   const [userGameId, setUserGameId] = useState(null);
   const [step, setStep] = useState(0);
-  const {replace} = useRouter()
+  const { replace } = useRouter()
 
   useEffect(() => {
     console.log('data', params.data)
@@ -34,12 +34,12 @@ const SudokuGame = (params) => {
       setUserGameId(userGameId);
     }
 
-    const {userId, gameId} = getLocalData()
+    const { userId, gameId } = getLocalData()
     setUserId(userId)
   }, []);
 
   const handleGeneratePuzzle = async (level) => {
-    const {puzzle,gameId,userGameId} = await createUserGames(userId, level)
+    const { puzzle, gameId, userGameId } = await createUserGames(userId, level)
     setPuzzle(puzzle);
     setUserGameId(userGameId);
     setUserSolution(() => copyPuzzle(puzzle));
@@ -50,15 +50,22 @@ const SudokuGame = (params) => {
 
   // 检查所有格子是否正确
   const handleCheckSolution = () => {
-    const isSolved = checkSolution(userSolution, true);
+    const isSolved = checkFillAll(userSolution) && checkSolution(userSolution);
     setIsSolved(isSolved);
   };
 
+  const checkFillAll = (userSolution) => {
+    for (let i = 0; i < 9; i++) {
+      if (userSolution[i].includes(null)) return false;
+    }
+    return true;
+  }
+
   // 检查用户解答的函数
-  const checkSolution = (userSolution, isAll) => {
+  const checkSolution = (userSolution) => {
     const hasDuplicates = (arr) => {
-      const checkArr = isAll ? arr : arr.filter(el => el != null);
-      return new Set(checkArr).size !== checkArr.length;
+      arr = arr.filter(el => el != null);
+      return new Set(arr).size !== arr.length;
     }
 
     for (let i = 0; i < 9; i++) {
@@ -93,13 +100,21 @@ const SudokuGame = (params) => {
     };
     if (value < 1 || value > 9) {
       setErrorCells([row, col]);
+      setIsSolved(false);
       return;
     }
-    if (!checkSolution(updatedUserSolution, false)) {
+
+    const right = checkSolution(updatedUserSolution)
+    if (!right) {
       setErrorCells([row, col]);
+      return;
+    } else if (checkFillAll(updatedUserSolution)) {
+      setIsSolved(true);
+      setErrorCells([]);
       return;
     }
     setErrorCells([]);
+    setIsSolved(false);
   };
 
   const handleBlur = (row, col, value) => {
